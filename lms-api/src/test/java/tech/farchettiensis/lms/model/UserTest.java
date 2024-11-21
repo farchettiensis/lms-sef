@@ -1,4 +1,4 @@
-package tech.farchettiensis.lmsapi.model;
+package tech.farchettiensis.lms.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
@@ -6,14 +6,27 @@ import jakarta.validation.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import tech.farchettiensis.lms.model.enums.UserRole;
+import tech.farchettiensis.lms.repository.UserRepository;
 
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 public class UserTest {
     private static ValidatorFactory factory;
     private static Validator validator;
+
+    private final UserRepository userRepository;
+
+    @Autowired
+    public UserTest(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @BeforeAll
     public static void setUpValidator() {
@@ -30,7 +43,7 @@ public class UserTest {
     void testUserCreation() {
         String firstName = "Jamil";
         String lastName = "Mascarenhas";
-        String email = "jamil.mascarenhas@mascarenhasadv.com";
+        String email = "jamil.mascarenhas@mascarenhasadv.com.br";
         String password = "M4sc4r3nh@s";
         UserRole role = UserRole.TEACHER;
 
@@ -59,10 +72,29 @@ public class UserTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Validation errors expected");
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath()
-                .toString()
-                .equals("email") &&
-                v.getMessage().equals("Invalid email address")));
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getPropertyPath()
+                        .toString()
+                        .equals("email") &&
+                        v.getMessage().equals("Invalid email address")));
+    }
+
+    @Test
+    void testDuplicateEmail() {
+        String email = "jamil.mascarenhas@mascarenhasadv.com";
+        User user1 = new User("Jamil", "Mascarenhas", email, "doutorjamilAdv", UserRole.TEACHER);
+        User user2 = new User("Jama", "Jhoses", email, "jamilAdvocacias", UserRole.TEACHER);
+
+        userRepository.save(user1);
+
+        Exception exception = assertThrows(DataIntegrityViolationException.class, () -> {
+            userRepository.save(user2);
+        });
+
+        String expectedMessage = "could not execute statement";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 
     @Test
@@ -77,10 +109,31 @@ public class UserTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Validation errors expected");
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath()
-                .toString()
-                .equals("password")
-                && v.getMessage().equals("Password is required")));
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getPropertyPath()
+                        .toString()
+                        .equals("password")
+                        && v.getMessage().equals("Password is required")));
+    }
+
+    @Test
+    void testShortPassword() {
+        String password = "jama";
+
+        User user = new User("Jamil", "José", "jamil.jose@jhoses.hotdog.com", password, UserRole.STUDENT);
+
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+
+        assertFalse(violations.isEmpty(), "Validation errors expected");
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getPropertyPath()
+                        .toString()
+                        .equals("password")
+                        && v.getMessage().equals("Password must be at least 6 characters long")));
+    }
+
+    @Test
+    void testPasswordEncryption() {
     }
 
     @Test
@@ -95,10 +148,11 @@ public class UserTest {
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Validation errors expected");
-        assertTrue(violations.stream().anyMatch(v -> v.getPropertyPath()
-                .toString()
-                .equals("userRole")
-                && v.getMessage().equals("User role is required")));
+        assertTrue(violations.stream()
+                .anyMatch(v -> v.getPropertyPath()
+                        .toString()
+                        .equals("userRole")
+                        && v.getMessage().equals("User role is required")));
     }
 
     @Test
