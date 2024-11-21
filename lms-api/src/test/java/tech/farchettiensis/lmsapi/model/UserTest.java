@@ -1,5 +1,7 @@
 package tech.farchettiensis.lmsapi.model;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.validation.*;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -85,9 +87,9 @@ public class UserTest {
     void testInvalidRole() {
         String firstName = "Dana";
         String lastName = "White";
-        String email = "dana.white@example.com";
-        String password = "securepassword";
-        UserRole role = null; // TODO: role that doesn't exist
+        String email = "dana.white@ufc.com";
+        String password = "conorMcJones";
+        UserRole role = null;
 
         User user = new User(firstName, lastName, email, password, role);
 
@@ -97,5 +99,27 @@ public class UserTest {
                 .toString()
                 .equals("userRole")
                 && v.getMessage().equals("User role is required")));
+    }
+
+    @Test
+    void testInvalidRoleValue() {
+        String json = "{"
+                + "\"firstName\":\"Dana\","
+                + "\"lastName\":\"White\","
+                + "\"email\":\"dana.white@ufc.com\","
+                + "\"password\":\"jonJones\","
+                + "\"userRole\":\"Swagger da rizzle\""
+                + "}";
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Exception exception = assertThrows(InvalidFormatException.class, () -> {
+            User user = objectMapper.readValue(json, User.class);
+        });
+
+        String expectedMessage = "Cannot deserialize value of type";
+        String actualMessage = exception.getMessage();
+
+        assertTrue(actualMessage.contains(expectedMessage));
     }
 }
