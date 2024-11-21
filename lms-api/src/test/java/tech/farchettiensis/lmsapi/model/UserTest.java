@@ -1,6 +1,7 @@
 package tech.farchettiensis.lmsapi.model;
 
 import jakarta.validation.*;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -9,12 +10,18 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserTest {
+    private static ValidatorFactory factory;
     private static Validator validator;
 
     @BeforeAll
     public static void setUpValidator() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
+    }
+
+    @AfterAll
+    public static void closeValidatorFactory() {
+        factory.close();
     }
 
     @Test
