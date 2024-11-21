@@ -1,6 +1,6 @@
-package tech.farchettiensis.lmsapi.validator.impl;
+package tech.farchettiensis.lms.validator.impl;
 
-import tech.farchettiensis.lmsapi.validator.Validator;
+import tech.farchettiensis.lms.validator.Validator;
 
 import java.util.regex.Pattern;
 

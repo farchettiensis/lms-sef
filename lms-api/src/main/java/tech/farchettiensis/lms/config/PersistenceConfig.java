@@ -1,4 +1,4 @@
-package tech.farchettiensis.lmsapi.config;
+package tech.farchettiensis.lms.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
