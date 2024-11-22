@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.repository.UserRepository;
 
@@ -40,7 +41,7 @@ public class UserTest {
     }
 
     @Test
-    void testUserCreation() {
+    void testUserValidation() {
         String firstName = "Jamil";
         String lastName = "Mascarenhas";
         String email = "jamil.mascarenhas@mascarenhasadv.com.br";
@@ -50,15 +51,15 @@ public class UserTest {
         User user = new User(firstName, lastName, email, password, role);
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
+
         assertTrue(violations.isEmpty(), "No validation errors expected");
 
-        assertNotNull(user);
         assertEquals(firstName, user.getFirstName());
         assertEquals(lastName, user.getLastName());
         assertEquals(email, user.getEmail());
-        assertEquals(password, user.getPassword());
         assertEquals(role, user.getUserRole());
     }
+
 
     @Test
     void testInvalidEmail() {
@@ -99,13 +100,12 @@ public class UserTest {
 
     @Test
     void testNullPassword() {
-        String firstName = "Charlie";
-        String lastName = "Brown";
-        String email = "charlie.brown@example.com";
-        String password = null;
+        String firstName = "Jamil";
+        String lastName = "Mascarenhas";
+        String email = "jamil.mascarenhas@example.com";
         UserRole role = UserRole.ADMIN;
 
-        User user = new User(firstName, lastName, email, password, role);
+        User user = new User(firstName, lastName, email, null, role);
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Validation errors expected");
@@ -133,8 +133,19 @@ public class UserTest {
     }
 
     @Test
-    void testPasswordEncryption() {
+    void testPasswordEncoding() {
+        String rawPassword = "M4sc4r3nh@s";
+
+        User user = new User("Jamil", "Mascarenhas", "jamil.mascarenhas@mascarenhasadv.com.br", rawPassword, UserRole.TEACHER);
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        user.encodeAndSetPassword(rawPassword, encoder);
+
+        assertNotEquals(rawPassword, user.getPassword(), "Password should be encrypted");
+
+        assertTrue(encoder.matches(rawPassword, user.getPassword()), "Encoded password should match the raw password");
     }
+
 
     @Test
     void testInvalidRole() {
@@ -142,9 +153,8 @@ public class UserTest {
         String lastName = "White";
         String email = "dana.white@ufc.com";
         String password = "conorMcJones";
-        UserRole role = null;
 
-        User user = new User(firstName, lastName, email, password, role);
+        User user = new User(firstName, lastName, email, password, null);
 
         Set<ConstraintViolation<User>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "Validation errors expected");
