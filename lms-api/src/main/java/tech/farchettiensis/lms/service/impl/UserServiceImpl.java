@@ -23,17 +23,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDTO registerUser(UserRegistrationDTO registrationDTO) {
-        if (userRepository.findByEmail(registrationDTO.email()).isPresent()) {
+    public UserResponseDTO registerUser(UserRegistrationDTO userRegistrationDTO) {
+        if (userRepository.findByEmail(userRegistrationDTO.email()).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
 
         User user = new User(
-                registrationDTO.firstName(),
-                registrationDTO.lastName(),
-                registrationDTO.email(),
-                passwordEncoder.encode(registrationDTO.password()),
-                registrationDTO.role() != null ? registrationDTO.role() : UserRole.STUDENT
+                userRegistrationDTO.firstName(),
+                userRegistrationDTO.lastName(),
+                userRegistrationDTO.email(),
+                passwordEncoder.encode(userRegistrationDTO.password()),
+                userRegistrationDTO.role() != null ? userRegistrationDTO.role() : UserRole.STUDENT
         );
 
         User savedUser = userRepository.save(user);
