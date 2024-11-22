@@ -3,6 +3,8 @@ package tech.farchettiensis.lms.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tech.farchettiensis.lms.dto.UserRegistrationDTO;
+import tech.farchettiensis.lms.dto.UserResponseDTO;
 import tech.farchettiensis.lms.model.User;
 import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.repository.UserRepository;
@@ -21,18 +23,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User registerUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public UserResponseDTO registerUser(UserRegistrationDTO registrationDTO) {
+        if (userRepository.findByEmail(registrationDTO.email()).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        User user = new User(
+                registrationDTO.firstName(),
+                registrationDTO.lastName(),
+                registrationDTO.email(),
+                passwordEncoder.encode(registrationDTO.password()),
+                registrationDTO.role() != null ? registrationDTO.role() : UserRole.STUDENT
+        );
 
-        if (user.getUserRole() == null) {
-            user.setUserRole(UserRole.STUDENT);
-        }
+        User savedUser = userRepository.save(user);
 
-        return userRepository.save(user);
+        return new UserResponseDTO(
+                savedUser.getId(),
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                savedUser.getUserRole(),
+                savedUser.getCreatedAt(),
+                savedUser.getUpdatedAt()
+        );
     }
 
     @Override
