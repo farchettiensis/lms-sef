@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import tech.farchettiensis.lms.repository.UserRepository;
 
 @Service
-public class AuthService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Autowired
-    public AuthService(UserRepository userRepository) {
+    public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
