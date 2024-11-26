@@ -57,8 +57,7 @@ public class TokenService {
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
-            // Invalid token
+            return false;
         }
-        return false;
     }
 }
