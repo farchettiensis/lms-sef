@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import tech.farchettiensis.lms.model.enums.UserRole;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @Table(name = "users")
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString(callSuper = true, exclude = "password")
 public class User extends BaseModel implements UserDetails, Serializable {
     @Setter
@@ -46,12 +48,8 @@ public class User extends BaseModel implements UserDetails, Serializable {
     @Column(nullable = false)
     private UserRole userRole;
 
-    public User(String firstName, String lastName, String email, String password, UserRole userRole) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.userRole = userRole;
+    public static UserBuilder builder() {
+        return new UserBuilder();
     }
 
     public void encodeAndSetPassword(String rawPassword, PasswordEncoder passwordEncoder) {
@@ -86,5 +84,64 @@ public class User extends BaseModel implements UserDetails, Serializable {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public static class UserBuilder {
+        private Long id;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String password;
+        private UserRole userRole;
+
+        public UserBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
+
+        public UserBuilder updatedAt(LocalDateTime updatedAt) {
+            this.updatedAt = updatedAt;
+            return this;
+        }
+
+        public UserBuilder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        public UserBuilder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder userRole(UserRole userRole) {
+            this.userRole = userRole;
+            return this;
+        }
+
+        public User build() {
+            User user = new User(firstName, lastName, email, password, userRole);
+            user.setId(id);
+            user.setCreatedAt(createdAt);
+            user.setUpdatedAt(updatedAt);
+            return user;
+        }
     }
 }
