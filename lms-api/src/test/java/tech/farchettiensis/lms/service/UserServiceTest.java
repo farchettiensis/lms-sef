@@ -7,9 +7,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import tech.farchettiensis.lms.dto.UserRegistrationDTO;
 import tech.farchettiensis.lms.dto.UserResponseDTO;
+import tech.farchettiensis.lms.exception.DuplicateEmailException;
 import tech.farchettiensis.lms.model.User;
 import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.repository.UserRepository;
@@ -37,6 +39,17 @@ public class UserServiceTest {
     @AfterEach
     void tearDown() throws Exception {
         closeable.close();
+    }
+
+    @Test
+    public void testPasswordEncoding() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String rawPassword = "jamaIsTheLaw";
+        String encodedPassword = encoder.encode(rawPassword);
+
+        assertNotNull(encodedPassword, "Encoded password should not be null");
+        assertNotEquals(rawPassword, encodedPassword, "Raw password should not match encoded password");
+        assertTrue(encoder.matches(rawPassword, encodedPassword), "Encoded password should match raw password");
     }
 
     @Test
@@ -92,7 +105,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(userRegistrationDTO.email())).thenReturn(Optional.of(existingUser));
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () ->
+        Exception exception = assertThrows(DuplicateEmailException.class, () ->
                 userService.registerUser(userRegistrationDTO));
 
         assertEquals("Email already in use", exception.getMessage());

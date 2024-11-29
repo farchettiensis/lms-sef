@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceNotFoundException(ResourceNotFoundException ex, WebRequest request) {
-        logger.error("Unhandled exception occurred", ex);
+        logger.error("Resource not found exception occurred", ex);
 
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 ex.getMessage(),
@@ -49,9 +49,35 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDuplicateEmailException(DuplicateEmailException ex, WebRequest request) {
+        logger.error("Duplicate email exception occurred", ex);
+
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        logger.error("Illegal argument exception occurred", ex);
+
+        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+                ex.getMessage(),
+                LocalDateTime.now(),
+                request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleAllExceptions(
             Exception ex, WebRequest request) {
+        logger.error("Unhandled exception occurred", ex);
+
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(
                 ex.getMessage(),
                 LocalDateTime.now(),
