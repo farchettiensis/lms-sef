@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: '23'
-        distribution: 'temurin'
+        distribution: 'oracle'
 
     - name: Cache Gradle dependencies
       uses: actions/cache@v3
@@ -37,3 +37,6 @@ jobs:
     - name: Build and Test
       run: ./gradlew build --no-daemon
       working-directory: lms-api
+      env:
+        JWT_SECRET: Bzg20pFBAvwxVskcB6GjNYdVvmXB2vMT
+        JWT_EXPIRATION_MS: 86400000
