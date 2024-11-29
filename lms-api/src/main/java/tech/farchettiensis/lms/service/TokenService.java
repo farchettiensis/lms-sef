@@ -2,6 +2,7 @@ package tech.farchettiensis.lms.service;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class TokenService {
     private final SecretKey jwtSecretKey;
     private final long jwtExpirationMs;
 
+    @Autowired
     public TokenService(JwtProperties jwtProperties) {
         String jwtSecret = jwtProperties.getSecret();
         this.jwtExpirationMs = jwtProperties.getExpirationMs();
