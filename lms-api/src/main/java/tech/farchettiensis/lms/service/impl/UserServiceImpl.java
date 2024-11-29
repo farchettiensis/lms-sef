@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tech.farchettiensis.lms.dto.UserRegistrationDTO;
 import tech.farchettiensis.lms.dto.UserResponseDTO;
+import tech.farchettiensis.lms.exception.DuplicateEmailException;
 import tech.farchettiensis.lms.model.User;
 import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.repository.UserRepository;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDTO registerUser(UserRegistrationDTO userRegistrationDTO) {
         if (userRepository.findByEmail(userRegistrationDTO.email()).isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new DuplicateEmailException("Email already in use");
         }
 
         User user = new User(

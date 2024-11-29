@@ -12,6 +12,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import tech.farchettiensis.lms.config.JwtProperties;
 import tech.farchettiensis.lms.dto.UserRegistrationDTO;
 import tech.farchettiensis.lms.dto.UserResponseDTO;
+import tech.farchettiensis.lms.exception.DuplicateEmailException;
 import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.service.CustomUserDetailsService;
 import tech.farchettiensis.lms.service.TokenService;
@@ -99,7 +100,7 @@ public class UserControllerTest {
         );
 
         when(userService.registerUser(any(UserRegistrationDTO.class)))
-                .thenThrow(new IllegalArgumentException("Email already in use"));
+                .thenThrow(new DuplicateEmailException("Email already in use"));
 
         mockMvc.perform(post("/api/users/signup")
                         .contentType(MediaType.APPLICATION_JSON)
