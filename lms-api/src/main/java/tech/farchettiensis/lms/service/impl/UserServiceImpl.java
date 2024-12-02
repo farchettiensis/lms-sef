@@ -14,7 +14,6 @@ import tech.farchettiensis.lms.model.enums.UserRole;
 import tech.farchettiensis.lms.repository.UserRepository;
 import tech.farchettiensis.lms.service.UserService;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
